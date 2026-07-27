@@ -9,13 +9,15 @@ Framework interaktif bergaya Metasploit dengan 90+ tools untuk berbagai kategori
 
 ## ✨ Features
 
-- 🖥️ **Interactive CLI** - Metasploit-style terminal dengan auto-completion
+- 🖥️ **Interactive CLI** - Metasploit-style terminal dengan auto-completion & syntax highlighting
 - 🔌 **Plugin System** - Tambahkan module baru cukup dengan menambah folder
 - 🔐 **90+ Tools** - Crypto, Forensic, Reverse, PWN, Web, Stego, OSINT
 - 🤖 **Automation** - Auto-detect challenge, pipeline workflow, batch processing
 - 📊 **Report Generator** - HTML & Markdown reports
 - 💾 **Session Management** - Save/load session
 - 🎨 **Rich UI** - Colored tables, panels, progress bars
+
+---
 
 ## 📦 Installation
 
@@ -24,31 +26,272 @@ Framework interaktif bergaya Metasploit dengan 90+ tools untuk berbagai kategori
 - WSL Ubuntu / Kali Linux (recommended)
 
 ### Install Dependencies
+
+Di Kali Linux / Ubuntu modern:
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt --break-system-packages
 ```
+*Atau menggunakan virtual environment (`python3 -m venv venv && source venv/bin/activate`).*
 
-### Run
+### Run Framework
 ```bash
-python main.py
+python3 main.py
 ```
 
-## 🎮 Quick Start
+---
+
+## 🎮 Quick Start & Perintah Dasar
 
 ```
-CTF > modules                    # List all categories
-CTF > use crypto                 # Show crypto tools
-CTF > use crypto/base64          # Select Base64 tool
-CTF crypto(base64) > show options  # Show tool options
+CTF > modules                    # List semua kategori module
+CTF > use crypto                 # Lihat semua tools di kategori crypto
+CTF > use crypto/base64          # Pilih tool Base64
+CTF crypto(base64) > show options  # Lihat opsi tool yang aktif
 CTF crypto(base64) > set DATA SGVsbG8gV29ybGQ=
 CTF crypto(base64) > set MODE decode
-CTF crypto(base64) > run         # Execute!
-CTF crypto(base64) > back        # Back to main
-CTF > search hash                # Search tools
-CTF > exit                       # Exit
+CTF crypto(base64) > run         # Jalankan analisis / tool!
+CTF crypto(base64) > back        # Kembali ke menu utama
+CTF > search hash                # Cari tools berdasarkan kata kunci
+CTF > exit                       # Keluar dari framework
 ```
 
-## 📁 Project Structure
+---
+
+## 💡 Contoh Penggunaan Nyata per Modul
+
+Berikut adalah contoh skenario penggunaan praktis untuk masing-masing modul di soal CTF:
+
+### 1. 🔍 Modul Forensic (File & Disk Analysis)
+Skenario: Anda diberikan file `suspicious.png` atau file `dump.bin` dan dicurigai ada flag tersembunyi.
+
+* **Cek Informasi Metadata (Exif):**
+  ```
+  CTF > use forensic/exiftool_wrapper
+  CTF forensic(exiftool_wrapper) > set FILE /path/to/suspicious.png
+  CTF forensic(exiftool_wrapper) > run
+  ```
+
+* **Cek Tipe File Asli (Magic Bytes):**
+  ```
+  CTF > use forensic/file_signature
+  CTF forensic(file_signature) > set FILE /path/to/unknown_file
+  CTF forensic(file_signature) > run
+  ```
+
+* **Bedah Structure Chunk PNG:**
+  ```
+  CTF > use forensic/png_chunk_parser
+  CTF forensic(png_chunk_parser) > set FILE /path/to/challenge.png
+  CTF forensic(png_chunk_parser) > run
+  ```
+
+* **Deteksi Data Tersembunyi Setelah EOF (End Of File):**
+  ```
+  CTF > use forensic/hidden_data
+  CTF forensic(hidden_data) > set FILE /path/to/image.jpg
+  CTF forensic(hidden_data) > run
+  ```
+
+* **Analisis Nilai Entropy File (Deteksi Enkripsi/Kompresi):**
+  ```
+  CTF > use forensic/entropy_analyzer
+  CTF forensic(entropy_analyzer) > set FILE /path/to/dump.bin
+  CTF forensic(entropy_analyzer) > run
+  ```
+
+---
+
+### 2. 🔐 Modul Crypto (Sandi & Enkripsi)
+Skenario: Anda mendapatkan ciphertext terenkripsi atau hash misterius.
+
+* **Auto-Detect Enkripsi Berlapis:**
+  ```
+  CTF > use crypto/auto_detect
+  CTF crypto(auto_detect) > set DATA VM1JMWVsbG9Xb3JsZA==
+  CTF crypto(auto_detect) > run
+  ```
+
+* **Brute-force Caesar Cipher (Coba 26 Shift):**
+  ```
+  CTF > use crypto/caesar
+  CTF crypto(caesar) > set DATA "KHOOR ZRUOG"
+  CTF crypto(caesar) > set MODE bruteforce
+  CTF crypto(caesar) > run
+  ```
+
+* **Single/Multi-byte XOR Brute-force:**
+  ```
+  CTF > use crypto/xor_tool
+  CTF crypto(xor_tool) > set DATA 1c1b001a1e0b0e
+  CTF crypto(xor_tool) > set MODE bruteforce
+  CTF crypto(xor_tool) > run
+  ```
+
+* **RSA Factorization & Helper:**
+  ```
+  CTF > use crypto/rsa_helper
+  CTF crypto(rsa_helper) > set N 143
+  CTF crypto(rsa_helper) > set E 65537
+  CTF crypto(rsa_helper) > set MODE factor
+  CTF crypto(rsa_helper) > run
+  ```
+
+---
+
+### 3. ⚙️ Modul Reverse Engineering (Analisis Binary)
+Skenario: Diberikan binary Linux `chall` atau Windows `chall.exe`.
+
+* **Membedah ELF Binary Header & Section:**
+  ```
+  CTF > use reverse/elf_parser
+  CTF reverse(elf_parser) > set FILE ./chall
+  CTF reverse(elf_parser) > run
+  ```
+
+* **Mencari Printable Strings dengan Filter Offset:**
+  ```
+  CTF > use reverse/strings_extractor
+  CTF reverse(strings_extractor) > set FILE ./chall
+  CTF reverse(strings_extractor) > set MIN_LENGTH 6
+  CTF reverse(strings_extractor) > run
+  ```
+
+* **Mengekstrak Symbol & Function Table:**
+  ```
+  CTF > use reverse/symbol_parser
+  CTF reverse(symbol_parser) > set FILE ./chall
+  CTF reverse(symbol_parser) > run
+  ```
+
+---
+
+### 4. 💥 Modul PWN (Binary Exploitation)
+Skenario: Membedah binary soal pwn dan membuat script exploit buffer overflow.
+
+* **Cek Proteksi Binary (NX, PIE, Canary, RELRO):**
+  ```
+  CTF > use pwn/checksec_wrapper
+  CTF pwn(checksec_wrapper) > set FILE ./pwn_chall
+  CTF pwn(checksec_wrapper) > run
+  ```
+
+* **Buat Pattern Buffer Overflow & Cari Crash Offset:**
+  ```
+  CTF > use pwn/cyclic_pattern
+  CTF pwn(cyclic_pattern) > set LENGTH 200
+  CTF pwn(cyclic_pattern) > run
+
+  CTF > use pwn/cyclic_offset
+  CTF pwn(cyclic_offset) > set VALUE 0x61616168
+  CTF pwn(cyclic_offset) > run
+  ```
+
+* **Generate Template Script Pwntools Otomatis:**
+  ```
+  CTF > use pwn/pwntools_template
+  CTF pwn(pwntools_template) > set BINARY ./pwn_chall
+  CTF pwn(pwntools_template) > set HOST ctf.target.com
+  CTF pwn(pwntools_template) > set PORT 1337
+  CTF pwn(pwntools_template) > run
+  ```
+
+---
+
+### 5. 🌐 Modul Web (Web Application Analysis)
+Skenario: Inspeksi lalu lintas HTTP, token JWT, dan payload.
+
+* **Decode & Analisis Structure JWT Token:**
+  ```
+  CTF > use web/jwt_decoder
+  CTF web(jwt_decoder) > set TOKEN eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  CTF web(jwt_decoder) > run
+  ```
+
+* **Ekstraksi Elemen Tersembunyi dari HTML (Link, Comment, Hidden Form):**
+  ```
+  CTF > use web/html_parser
+  CTF web(html_parser) > set DATA "<html><!-- flag{test} --></html>"
+  CTF web(html_parser) > run
+  ```
+
+* **Format Raw Request ke Command Curl atau Script Python:**
+  ```
+  CTF > use web/request_formatter
+  CTF web(request_formatter) > set DATA "GET /admin HTTP/1.1\r\nHost: target.com"
+  CTF web(request_formatter) > set FORMAT curl
+  CTF web(request_formatter) > run
+  ```
+
+---
+
+### 6. 🖼️ Modul Stego (Steganography)
+Skenario: Gambar mengandung rahasia di dalam bit tersembunyi.
+
+* **Analisis Least Significant Bit (LSB):**
+  ```
+  CTF > use stego/lsb_analyzer
+  CTF stego(lsb_analyzer) > set FILE /path/to/stego.png
+  CTF stego(lsb_analyzer) > run
+  ```
+
+* **Bandingkan 2 Gambar Pixel-by-Pixel:**
+  ```
+  CTF > use stego/image_compare
+  CTF stego(image_compare) > set FILE /path/to/img1.png
+  CTF stego(image_compare) > set FILE2 /path/to/img2.png
+  CTF stego(image_compare) > run
+  ```
+
+---
+
+### 7. 👁️ Modul OSINT (Information Gathering)
+Skenario: Pengumpulan informasi domain, sertifikat, atau email header.
+
+* **Analisis Header Email (Tracing Pengirim):**
+  ```
+  CTF > use osint/email_header_parser
+  CTF osint(email_header_parser) > set DATA "Received: from mail.example.com..."
+  CTF osint(email_header_parser) > run
+  ```
+
+* **Inspeksi SSL/TLS Certificate:**
+  ```
+  CTF > use osint/cert_parser
+  CTF osint(cert_parser) > set HOST google.com
+  CTF osint(cert_parser) > run
+  ```
+
+---
+
+### 8. 🤖 Modul Automation & Pipeline
+Skenario: Bingung harus mulai dari mana saat mendapatkan file soal.
+
+* **Auto-Detect Soal & Dapatkan Rekomendasi Tool:**
+  ```
+  CTF > use misc/auto_detect_challenge
+  CTF misc(auto_detect_challenge) > set FILE /path/to/mystery_file
+  CTF misc(auto_detect_challenge) > run
+  ```
+
+* **Rantai Perintah (Pipeline Workflow):**
+  ```
+  CTF > use misc/pipeline
+  CTF misc(pipeline) > set PIPELINE "crypto/base64 -> crypto/hex"
+  CTF misc(pipeline) > set DATA "SGVsbG8="
+  CTF misc(pipeline) > run
+  ```
+
+* **Generate Laporan Analysis (Markdown/HTML):**
+  ```
+  CTF > use misc/report_generator
+  CTF misc(report_generator) > set FORMAT html
+  CTF misc(report_generator) > set OUTPUT my_ctf_report
+  CTF misc(report_generator) > run
+  ```
+
+---
+
+## 📁 Struktur Project
 
 ```
 flag v2/
@@ -80,74 +323,11 @@ flag v2/
 └── data/                        # Data files
 ```
 
-## 🔧 Commands
+---
 
-| Command | Description |
-|---------|-------------|
-| `help` | Show help information |
-| `modules` | List all module categories |
-| `search <keyword>` | Search for tools |
-| `use <category/tool>` | Select a tool |
-| `info` | Show tool information |
-| `show options` | Show tool options |
-| `set <option> <value>` | Set option value |
-| `run` | Execute current tool |
-| `back` | Deselect current tool |
-| `history` | Show command history |
-| `save [name]` | Save current session |
-| `load <name>` | Load saved session |
-| `clear` | Clear screen |
-| `version` | Show version |
-| `exit` | Exit framework |
+## 🔌 Membuat Custom Plugin Baru
 
-## 🔐 Module: Crypto (22 tools)
-
-Base16, Base32, Base58, Base64, Base85, Hex, Binary, ROT13, Caesar, Vigenere,
-XOR, AES Helper, RSA Helper, Bacon, Morse, Rail Fence, Affine,
-Frequency Analysis, Hash Identifier, MD5, SHA, Auto Detect Encoding
-
-## 🔍 Module: Forensic (16 tools)
-
-Exiftool Wrapper, Strings, Binwalk, Foremost, Hidden Data Detector,
-Entropy Analyzer, Metadata Extractor, File Signature, Magic Bytes,
-Steganography Helper, PNG Chunk Parser, ZIP Analyzer, PDF Analyzer,
-Image Analyzer, Audio Analyzer, Recursive Extraction
-
-## ⚙️ Module: Reverse (12 tools)
-
-ELF Parser, PE Parser, Strings Extractor, Disassembler Helper,
-Opcode Viewer, Section Viewer, Symbol Parser, Import/Export Parser,
-Hex Viewer, Assembly Helper, Ghidra Helper, Radare2 Helper
-
-## 💥 Module: PWN (9 tools)
-
-Checksec Wrapper, Cyclic Pattern, Cyclic Offset, ROP Gadget Finder,
-ELF Info, Libc Helper, Shellcode Viewer, Pwntools Template, Exploit Template
-
-## 🌐 Module: Web (13 tools)
-
-JWT Decoder, JWT Inspector, Cookie Parser, Header Analyzer,
-Request Formatter, Response Beautifier, HTML Parser, JS Beautifier,
-Robots.txt Parser, Sitemap Parser, URL Decoder, SQL Encoder, XSS Encoder
-
-## 🖼️ Module: Stego (8 tools)
-
-PNGCheck, Zsteg Wrapper, Stegsolve Helper, LSB Analyzer,
-QR Decoder, Barcode Reader, Image Compare, Color Channel Splitter
-
-## 👁️ Module: OSINT (6 tools)
-
-WHOIS Lookup, DNS Lookup, Certificate Parser, Email Header Parser,
-Metadata Extractor, IP Information
-
-## 🤖 Module: Automation (7 tools)
-
-Auto Detect Challenge, Auto Identify Encoding, Auto Identify File Type,
-Auto Recommend Tools, Pipeline Workflow, Batch Processor, Report Generator
-
-## 🔌 Creating Custom Plugins
-
-Buat tool baru dengan membuat file Python di dalam folder module:
+Buat file Python baru di dalam folder module, dan gunakan decorator `@register_tool`:
 
 ```python
 # modules/crypto/my_tool.py
@@ -158,7 +338,7 @@ from core.exceptions import ExecutionError
 class MyCustomTool(BaseTool):
     name = 'my_tool'
     category = 'crypto'
-    description = 'My custom tool description'
+    description = 'Deskripsi tool kustom saya'
     tags = ['custom', 'crypto']
 
     def _setup_options(self):
@@ -170,13 +350,14 @@ class MyCustomTool(BaseTool):
         data = self.get_option('DATA')
         mode = self.get_option('MODE')
         
-        # Your logic here
         result = data.upper() if mode == 'encode' else data.lower()
         
         return {'status': 'success', 'result': result}
 ```
 
-Tool akan otomatis terdeteksi saat framework dijalankan.
+Tool baru akan otomatis terdeteksi saat framework dijalankan tanpa perlu merubah kode core!
+
+---
 
 ## 📜 License
 
