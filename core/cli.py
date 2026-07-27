@@ -1,5 +1,5 @@
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import WordCompleter, NestedCompleter, merge_completers
+from prompt_toolkit.completion import WordCompleter, NestedCompleter, PathCompleter, merge_completers
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.formatted_text import HTML
