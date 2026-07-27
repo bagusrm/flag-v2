@@ -88,7 +88,7 @@ class BaseTool(ABC):
     
     def set_option(self, name: str, value: Any) -> None:
         """
-        Set the value of an option.
+        Set the value of an option with instant path validation if applicable.
         
         Args:
             name: The name of the option to set.
@@ -103,6 +103,15 @@ class BaseTool(ABC):
         opt = self._options[key]
         if opt.choices and value not in opt.choices:
             raise InvalidOptionError(f'{name} must be one of: {opt.choices}')
+            
+        # Instant file existence check for file/path options
+        if any(p in key for p in ['FILE', 'PATH', 'INPUT']) and value:
+            from pathlib import Path
+            val_path = Path(str(value)).expanduser().resolve()
+            if not val_path.exists():
+                raise InvalidOptionError(f"File/Path not found: '{value}' (Resolved: {val_path})")
+            value = str(val_path)
+            
         opt.value = value
     
     def get_option(self, name: str) -> Any:

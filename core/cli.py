@@ -18,6 +18,7 @@ class InteractiveCLI:
         self.ui = ui
         self.config = config
         self.logger = get_logger('cli')
+        self._path_completer = PathCompleter(expanduser=True)
         self._setup_prompt()
     
     def _setup_prompt(self):
@@ -73,12 +74,19 @@ class InteractiveCLI:
         
         while running:
             try:
-                # We update the completer each time to reflect current tool options for 'set'
+                # Dynamically provide path completer when active tool has FILE/PATH options
                 if self.handler.current_tool:
                     opts = list(self.handler.current_tool.options.keys())
+                    set_dict = {}
+                    for opt_name in opts:
+                        if any(k in opt_name for k in ['FILE', 'PATH', 'INPUT']):
+                            set_dict[opt_name] = self._path_completer
+                        else:
+                            set_dict[opt_name] = None
+                            
                     self.session.completer = merge_completers([
                         self._create_completer(),
-                        NestedCompleter.from_nested_dict({'set': WordCompleter(opts, ignore_case=True)})
+                        NestedCompleter.from_nested_dict({'set': set_dict})
                     ])
                 else:
                     self.session.completer = self._create_completer()
