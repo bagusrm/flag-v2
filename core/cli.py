@@ -38,7 +38,7 @@ class InteractiveCLI:
     def _create_completer(self):
         commands = self.handler.get_command_names()
         
-        # Tools completion
+        # Tools completion list
         tools_list = []
         for cat in self.handler.registry.get_all_categories():
             cat_name = cat['name']
@@ -46,11 +46,11 @@ class InteractiveCLI:
             for tool in self.handler.registry.get_category_tools(cat_name):
                 tools_list.append(f"{cat_name}/{tool['name']}")
                 
-        # Options completion (dynamically would be better, but static dictionary structure here)
         completer_dict = {
             'use': WordCompleter(tools_list, ignore_case=True),
             'show': WordCompleter(['options', 'modules', 'tools'], ignore_case=True),
             'help': WordCompleter(commands, ignore_case=True),
+            'load': self._path_completer,
             'search': None,
             'set': None,
         }
@@ -74,15 +74,13 @@ class InteractiveCLI:
         
         while running:
             try:
-                # Dynamically provide path completer when active tool has FILE/PATH options
+                # Universal path completion: enable PathCompleter for ALL options in 'set'
                 if self.handler.current_tool:
                     opts = list(self.handler.current_tool.options.keys())
                     set_dict = {}
                     for opt_name in opts:
-                        if any(k in opt_name for k in ['FILE', 'PATH', 'INPUT']):
-                            set_dict[opt_name] = self._path_completer
-                        else:
-                            set_dict[opt_name] = None
+                        # Allow PathCompleter on ALL option values when TAB is pressed
+                        set_dict[opt_name] = self._path_completer
                             
                     self.session.completer = merge_completers([
                         self._create_completer(),

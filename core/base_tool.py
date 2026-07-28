@@ -104,13 +104,27 @@ class BaseTool(ABC):
         if opt.choices and value not in opt.choices:
             raise InvalidOptionError(f'{name} must be one of: {opt.choices}')
             
-        # Instant file existence check for file/path options
-        if any(p in key for p in ['FILE', 'PATH', 'INPUT']) and value:
+        # Universal file/path existence check for path-like values or path option names
+        val_str = str(value).strip()
+        is_path_option = any(p in key for p in ['FILE', 'PATH', 'DIR', 'INPUT', 'OUTPUT', 'SCRIPT', 'BINARY'])
+        is_path_like = val_str.startswith(('/', './', '../', '~/')) or (len(val_str) > 2 and val_str[1:3] in [':\\', ':/'])
+        
+        if (is_path_option or is_path_like) and val_str:
             from pathlib import Path
-            val_path = Path(str(value)).expanduser().resolve()
-            if not val_path.exists():
-                raise InvalidOptionError(f"File/Path not found: '{value}' (Resolved: {val_path})")
-            value = str(val_path)
+            try:
+                val_path = Path(val_str).expanduser().resolve()
+                # For output files, check parent directory instead of file itself
+                if 'OUTPUT' in key:
+                    if not val_path.parent.exists():
+                        raise InvalidOptionError(f"Directory not found for output: '{val_path.parent}'")
+                else:
+                    if not val_path.exists():
+                        raise InvalidOptionError(f"File/Path not found: '{val_str}' (Resolved: {val_path})")
+                value = str(val_path)
+            except Exception as e:
+                if isinstance(e, InvalidOptionError):
+                    raise e
+                pass
             
         opt.value = value
     
