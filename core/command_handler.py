@@ -229,6 +229,26 @@ class CommandHandler:
         except SessionError as e:
             self.ui.error(str(e))
         return True
+
+    def _cmd_spool(self, args: str):
+        target = args.strip()
+        if not target:
+            if self._spool_file:
+                self.ui.info(f"Currently spooling to: {self._spool_file}")
+            else:
+                self.ui.info("Spooling is currently OFF. Usage: spool <filename> | spool off")
+            return True
+            
+        if target.lower() == 'off':
+            self._spool_file = None
+            self.ui.success("Spooling turned OFF.")
+        else:
+            from pathlib import Path
+            p = Path(target).expanduser().resolve()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            self._spool_file = str(p)
+            self.ui.success(f"Spooling started -> writing all outputs to: {p}")
+        return True
     
     @property
     def current_tool(self) -> BaseTool | None:
