@@ -27,10 +27,11 @@ class CommandHandler:
             'search': (self._cmd_search, 'Search for tools by keyword'),
             'use': (self._cmd_use, 'Select a tool to use (e.g., use crypto/base64)'),
             'info': (self._cmd_info, 'Show information about current tool'),
-            'run': (self._cmd_run, 'Execute the current tool'),
+            'run': (self._cmd_run, 'Execute current tool (supports: run > output.txt)'),
             'set': (self._cmd_set, 'Set an option value (e.g., set DATA hello)'),
             'show': (self._cmd_show, 'Show options/modules/tools'),
             'back': (self._cmd_back, 'Deselect current tool'),
+            'spool': (self._cmd_spool, 'Write console output to file (e.g., spool out.txt / spool off)'),
             'history': (self._cmd_history, 'Show command history'),
             'clear': (self._cmd_clear, 'Clear the screen'),
             'exit': (self._cmd_exit, 'Exit the framework'),
@@ -41,6 +42,7 @@ class CommandHandler:
             'save': (self._cmd_save, 'Save current session'),
             'load': (self._cmd_load, 'Load a saved session'),
         }
+        self._spool_file = None
     
     def handle(self, raw_input: str) -> bool:
         """Parse command and args, route to handler."""
